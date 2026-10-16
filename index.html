@@ -1,0 +1,851 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Jev — Dashboard</title>
+
+<style>
+  /* ---------- font: tiga peran jelas ---------- */
+  @font-face{font-family:"Fraunces";src:url("/fonts/fraunces-latin-600-normal.woff2") format("woff2");font-weight:600;font-display:swap}
+  @font-face{font-family:"Fraunces";src:url("/fonts/fraunces-latin-700-normal.woff2") format("woff2");font-weight:700;font-display:swap}
+  @font-face{font-family:"Inter";src:url("/fonts/inter-latin-400-normal.woff2") format("woff2");font-weight:400;font-display:swap}
+  @font-face{font-family:"Inter";src:url("/fonts/inter-latin-500-normal.woff2") format("woff2");font-weight:500;font-display:swap}
+  @font-face{font-family:"Inter";src:url("/fonts/inter-latin-600-normal.woff2") format("woff2");font-weight:600;font-display:swap}
+  @font-face{font-family:"JetBrains Mono";src:url("/fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2");font-weight:400;font-display:swap}
+  @font-face{font-family:"JetBrains Mono";src:url("/fonts/jetbrains-mono-latin-500-normal.woff2") format("woff2");font-weight:500;font-display:swap}
+
+  /* ---------- token (shadcn neutral) ---------- */
+  :root{
+    --background:oklch(0.985 0 0);
+    --foreground:oklch(0.145 0 0);
+    --card:oklch(1 0 0);
+    --muted:oklch(0.97 0 0);
+    --muted-foreground:oklch(0.556 0 0);
+    --primary:oklch(0.205 0 0);
+    --primary-foreground:oklch(0.985 0 0);
+    --secondary:oklch(0.97 0 0);
+    --accent:oklch(0.97 0 0);
+    --destructive:oklch(0.577 0.245 27.325);
+    --border:oklch(0.922 0 0);
+    --input:oklch(0.922 0 0);
+    --ring:oklch(0.708 0 0);
+    --chart-1:oklch(0.646 0.222 41.116);
+    --chart-2:oklch(0.6 0.118 184.704);
+    --chart-3:oklch(0.398 0.07 227.392);
+    --chart-4:oklch(0.828 0.189 84.429);
+    --pos:oklch(0.62 0.15 152);
+    --radius:0.625rem;
+    --radius-sm:calc(var(--radius) * 0.6);
+    --radius-md:calc(var(--radius) * 0.8);
+    --radius-lg:var(--radius);
+    --font-display:"Fraunces",Georgia,serif;
+    --font-ui:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--background);color:var(--foreground);font-family:var(--font-ui);font-size:14px;line-height:1.5;-webkit-text-size-adjust:100%}
+  h1,h2,h3{font-family:var(--font-display);font-weight:600;margin:0;letter-spacing:-.01em}
+  a{color:var(--foreground)}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 20px}
+  .mono{font-family:var(--font-mono)}
+  .grow{flex:1}
+  [hidden]{display:none !important}
+
+  /* ---------- tombol ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;padding:0 14px;
+    font-family:var(--font-ui);font-size:13.5px;font-weight:500;color:var(--foreground);
+    background:var(--card);border:1px solid var(--input);border-radius:var(--radius-md);
+    cursor:pointer;white-space:nowrap;transition:background .12s,border-color .12s,opacity .12s
+  }
+  .btn:hover{background:var(--accent)}
+  .btn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--background),0 0 0 4px var(--ring)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn-primary{background:var(--primary);border-color:var(--primary);color:var(--primary-foreground);height:40px;padding:0 20px;font-weight:600}
+  .btn-primary:hover{background:oklch(0.269 0 0);border-color:oklch(0.269 0 0)}
+  .btn-ghost{background:transparent;border-color:transparent}
+  .btn-ghost:hover{background:var(--accent)}
+  .btn-sm{height:32px;padding:0 10px;font-size:13px}
+  .btn-danger{color:var(--destructive)}
+  .btn-danger:hover{background:oklch(0.97 0.02 27);border-color:oklch(0.9 0.05 27)}
+  .icon-btn{
+    display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;
+    border:1px solid transparent;background:transparent;border-radius:var(--radius-sm);
+    color:var(--muted-foreground);cursor:pointer;font-size:15px
+  }
+  .icon-btn:hover{background:var(--accent);color:var(--foreground)}
+
+  /* ---------- topbar ---------- */
+  .topbar{position:sticky;top:0;z-index:30;background:color-mix(in oklab,var(--card) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+  .topbar .wrap{display:flex;align-items:center;gap:10px;height:60px}
+  .brand{display:flex;align-items:baseline;gap:8px;margin-right:4px}
+  .brand .mark{font-family:var(--font-display);font-weight:700;font-size:22px;letter-spacing:-.02em}
+  .brand .sub{font-size:12px;color:var(--muted-foreground)}
+  .route-pill{
+    display:inline-flex;align-items:center;gap:7px;height:32px;padding:0 12px;max-width:38vw;
+    font-family:var(--font-mono);font-size:11.5px;color:var(--muted-foreground);
+    background:var(--card);border:1px solid var(--border);border-radius:999px;cursor:pointer
+  }
+  .route-pill:hover{background:var(--accent)}
+  .route-pill span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dot{width:8px;height:8px;border-radius:50%;background:oklch(0.72 0.17 150);flex:none}
+  .dot.bad{background:var(--destructive)}
+  @media (max-width:720px){
+    .topbar .wrap{height:auto;padding:10px 16px;flex-wrap:wrap;gap:8px}
+    .route-pill{max-width:100%;order:3;width:100%}
+    .brand .sub{display:none}
+  }
+
+  /* ---------- layout ---------- */
+  main.grid{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,1fr);gap:20px;padding:24px 0 40px;align-items:start}
+  @media (max-width:1000px){main.grid{grid-template-columns:minmax(0,1fr);gap:16px;padding:16px 0 96px}}
+  .col{display:flex;flex-direction:column;gap:16px;min-width:0}
+  @media (min-width:1001px){.col:last-child{position:sticky;top:84px}}
+
+  /* ---------- card ---------- */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;min-width:0;overflow-wrap:anywhere}
+  .card-h{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .card-h h2{font-size:19px}
+  .card-h .hint{font-size:12.5px;color:var(--muted-foreground)}
+  .card-f{display:flex;align-items:center;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+  .badge{display:inline-flex;align-items:center;height:22px;padding:0 8px;font-family:var(--font-mono);font-size:11px;
+    color:var(--muted-foreground);background:var(--muted);border-radius:999px}
+
+  /* ---------- form ---------- */
+  label{display:block;font-size:12.5px;font-weight:500;color:var(--foreground);margin:14px 0 6px}
+  input,select,textarea{
+    width:100%;min-width:0;max-width:100%;font-family:var(--font-ui);font-size:13.5px;color:var(--foreground);
+    background:var(--card);border:1px solid var(--input);border-radius:var(--radius-md);padding:8px 10px
+  }
+  input.mono,textarea.mono{font-family:var(--font-mono);font-size:12.5px}
+  textarea{resize:vertical;line-height:1.55}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ring);box-shadow:0 0 0 3px color-mix(in oklab,var(--ring) 25%,transparent)}
+  ::placeholder{color:var(--muted-foreground)}
+  .select-inline{width:auto;max-width:60%;height:32px;padding:0 8px;font-size:13px}
+  .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+  @media (max-width:640px){.grid2{grid-template-columns:minmax(0,1fr)}}
+  .grid2>div{min-width:0}
+
+  /* ---------- pertanyaan ---------- */
+  .q{border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;background:var(--card);margin-bottom:12px}
+  .q-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:2px}
+  .q-top .qn{flex:1 1 140px;font-family:var(--font-mono);font-size:12.5px}
+  .q-top .qt{flex:0 0 190px}
+  @media (max-width:640px){.q-top .qt{flex:1 1 100%}}
+  .q-thint{font-size:12px;color:var(--muted-foreground);margin-top:8px}
+
+  /* ---------- aksi ---------- */
+  .actions{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);
+    border-radius:var(--radius-lg);padding:12px 16px;min-width:0}
+  @media (max-width:1000px){.actions{display:none}}
+
+  /* ---------- hasil ---------- */
+  .tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+  @media (max-width:640px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .tile{border:1px solid var(--border);border-radius:var(--radius-md);padding:10px 12px;background:var(--card);min-width:0}
+  .tile .k{font-size:11px;color:var(--muted-foreground);margin-bottom:3px}
+  .tile .v{font-family:var(--font-mono);font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .tile.bad .v{color:var(--destructive)}
+  .empty{text-align:center;padding:34px 10px;color:var(--muted-foreground)}
+  .empty h3{font-size:20px;color:var(--foreground);margin-bottom:6px}
+  .summary{border:1px solid var(--border);border-left:3px solid var(--foreground);border-radius:var(--radius-md);
+    background:var(--muted);padding:12px 14px;margin-bottom:16px}
+  .summary .t{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground)}
+  .summary ul{margin:8px 0 0;padding-left:18px}
+  .summary li{margin:4px 0;font-size:13.5px}
+  .summary li .nm{font-family:var(--font-mono);font-size:12.5px}
+
+  .ans{border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;margin-bottom:12px;min-width:0}
+  .ans-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .ans-h .nm{font-family:var(--font-mono);font-size:12px;color:var(--muted-foreground)}
+  .ans-h .ty{font-size:11px;color:var(--muted-foreground);border:1px solid var(--border);border-radius:999px;padding:0 7px}
+  .ans .headline{font-family:var(--font-display);font-size:24px;font-weight:600;margin:6px 0 12px;letter-spacing:-.01em}
+  .ans .headline small{font-family:var(--font-ui);font-size:12.5px;font-weight:400;color:var(--muted-foreground);margin-left:8px}
+
+  .prob{display:grid;grid-template-columns:minmax(80px,1.1fr) minmax(0,1.7fr) 52px;gap:10px;align-items:center;margin:5px 0;font-size:12.5px}
+  .prob .lbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted-foreground)}
+  .prob .pct{text-align:right;font-family:var(--font-mono);font-size:11.5px;color:var(--muted-foreground);font-variant-numeric:tabular-nums}
+  .bar{height:8px;background:var(--muted);border-radius:999px;overflow:hidden}
+  .bar>i{display:block;height:100%;background:oklch(0.86 0 0)}
+  .prob.sel .bar>i{background:var(--pos)}
+  .prob.sel .lbl{color:var(--foreground);font-weight:500}
+  .prob.sel .pct{color:var(--foreground)}
+
+  /* noul: titik + bilah + penanda ambang (bukan ring) */
+  .verdict{display:flex;align-items:center;gap:8px;margin:0 0 4px}
+  .vdot{width:13px;height:13px;border-radius:50%;background:var(--pos);flex:none}
+  .vdot.off{background:oklch(0.82 0 0);box-shadow:inset 0 0 0 1px var(--border)}
+  .vtext{font-weight:600;font-size:13.5px}
+  .vsub{font-family:var(--font-mono);font-size:11.5px;color:var(--muted-foreground)}
+  .hbar{position:relative;height:10px;background:var(--muted);border-radius:999px;margin:10px 0 2px}
+  .hbar>i{display:block;height:100%;border-radius:999px;background:var(--pos)}
+  .hbar>i.off{background:oklch(0.82 0 0)}
+  .hbar .tick{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--foreground);opacity:.4;border-radius:2px}
+
+  /* score: satu sel per level, level terkuat disorot hijau */
+  .cells{display:flex;gap:4px;margin:2px 0}
+  .cell{position:relative;flex:1;min-width:0;border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 8px 7px;overflow:hidden;background:var(--card)}
+  .cell>i.cfill{position:absolute;left:0;top:0;bottom:0;background:oklch(0.94 0 0)}
+  .cell .clbl{position:relative;display:block;font-size:11px;color:var(--muted-foreground);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cell .cpct{position:relative;display:block;font-family:var(--font-mono);font-size:10.5px;color:var(--muted-foreground)}
+  .cell.active{border-color:color-mix(in oklab,var(--pos) 40%,var(--border))}
+  .cell.active>i.cfill{background:color-mix(in oklab,var(--pos) 20%,var(--card))}
+  .cell.active .clbl{color:var(--foreground);font-weight:600}
+  .cell.active .cpct{color:var(--foreground)}
+
+  .chart{margin:6px 0 12px}
+
+  .errbox{border:1px solid color-mix(in oklab,var(--destructive) 40%,var(--card));background:color-mix(in oklab,var(--destructive) 6%,var(--card));
+    border-radius:var(--radius-md);padding:12px 14px}
+  .errbox .et{font-weight:600;color:var(--destructive);font-size:13.5px}
+  .errbox .em{font-family:var(--font-mono);font-size:12.5px;margin-top:6px;word-break:break-word}
+  .errbox .eh{font-size:12.5px;color:var(--muted-foreground);margin-top:8px}
+
+  /* ---------- riwayat (drawer) ---------- */
+  .scrim{position:fixed;inset:0;background:oklch(0.145 0 0 / 32%);z-index:40;opacity:0;transition:opacity .18s}
+  .scrim.on{opacity:1}
+  .drawer{
+    position:fixed;top:0;right:0;bottom:0;width:min(420px,100%);z-index:50;background:var(--card);
+    border-left:1px solid var(--border);transform:translateX(100%);transition:transform .22s ease;
+    display:flex;flex-direction:column;min-width:0
+  }
+  .drawer.open{transform:none;box-shadow:-12px 0 32px oklch(0.145 0 0 / 12%)}
+  .drawer-h{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--border)}
+  .drawer-h h2{font-size:18px}
+  .drawer-body{padding:16px 18px;overflow:auto;min-width:0}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  thead th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-foreground);
+    font-weight:500;padding:8px 10px;border-bottom:1px solid var(--border)}
+  tbody td{padding:9px 10px;border-bottom:1px solid var(--border);font-family:var(--font-mono);font-size:11.5px;white-space:nowrap}
+  tbody tr{cursor:pointer}
+  tbody tr:hover{background:var(--accent)}
+  tbody td.st{text-align:right}
+  .ok{color:oklch(0.5 0.13 150)}
+  .bad{color:var(--destructive)}
+  .spark{margin:6px 0 16px;color:var(--muted-foreground)}
+
+  /* ---------- dialog ---------- */
+  dialog.dlg{border:1px solid var(--border);border-radius:var(--radius-lg);padding:0;background:var(--card);color:var(--foreground);
+    width:min(560px,calc(100% - 24px));box-shadow:0 24px 48px oklch(0.145 0 0 / 18%)}
+  dialog.dlg::backdrop{background:oklch(0.145 0 0 / 32%)}
+  .dlg-h{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--border)}
+  .dlg-h h2{font-size:18px}
+  .dlg-b{padding:18px;max-height:min(70vh,560px);overflow:auto}
+  .dlg-f{display:flex;justify-content:flex-end;gap:8px;padding:14px 18px;border-top:1px solid var(--border)}
+  .note{background:var(--muted);border:1px solid var(--border);border-radius:var(--radius-md);padding:10px 12px;
+    font-size:12.5px;color:var(--muted-foreground);margin-top:14px}
+  pre{margin:0;background:var(--muted);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px;
+    font-family:var(--font-mono);font-size:12px;line-height:1.55;overflow:auto;max-height:56vh;color:var(--foreground)}
+
+  /* ---------- bar bawah (mobile) ---------- */
+  #mbar{display:none}
+  @media (max-width:1000px){
+    #mbar{display:flex;align-items:center;gap:10px;position:fixed;left:0;right:0;bottom:0;z-index:35;
+      padding:10px 14px;background:color-mix(in oklab,var(--card) 96%,transparent);backdrop-filter:blur(8px);border-top:1px solid var(--border)}
+    #mbar .btn-primary{flex:1;min-width:0}
+    #mstat{font-family:var(--font-mono);font-size:11.5px;color:var(--muted-foreground);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:45%}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><span class="mark">Jev</span><span class="sub">SystemOne</span></div>
+    <button class="route-pill" id="routeBtn" title="Ubah route & model"><span id="routeLabel">memuat…</span></button>
+    <span class="grow"></span>
+    <span class="dot" id="proxyDot" title="proxy"></span>
+    <button class="btn btn-ghost btn-sm" id="historyBtn" aria-controls="drawer" aria-expanded="false">Riwayat</button>
+    <button class="btn btn-ghost btn-sm" id="settingsBtn" aria-haspopup="dialog">Pengaturan</button>
+  </div>
+</header>
+
+<main class="wrap grid">
+  <section class="col">
+    <article class="card">
+      <div class="card-h"><h2>Data</h2><span class="hint">Teks atau JSON</span></div>
+      <textarea id="state" class="mono" rows="7" spellcheck="false" placeholder="Tempel tiket, komentar, email, log…"></textarea>
+    </article>
+
+    <article class="card">
+      <div class="card-h">
+        <h2>Pertanyaan</h2>
+        <span class="badge" id="qCount">0/8</span>
+        <span class="grow"></span>
+        <select id="preset" class="select-inline" title="Contoh"></select>
+      </div>
+      <div id="questions"></div>
+      <button class="btn btn-sm" id="addQ">+ Pertanyaan</button>
+    </article>
+
+    <div class="actions">
+      <span class="mono" id="runStat" style="font-size:11.5px;color:var(--muted-foreground)">siap</span>
+      <span class="grow"></span>
+      <button class="btn" id="cancel" hidden>Batalkan</button>
+      <button class="btn btn-primary" id="run">Jalankan</button>
+    </div>
+  </section>
+
+  <section class="col">
+    <article class="card">
+      <div class="card-h"><h2>Hasil</h2><span class="grow"></span><span class="badge" id="resultBadge" hidden></span></div>
+      <div id="tiles"></div>
+      <div id="summary"></div>
+      <div id="answers">
+        <div class="empty" id="emptyState"><h3>Belum ada hasil</h3><div>Tekan Jalankan.</div></div>
+      </div>
+      <div class="card-f" id="resultTools" hidden>
+        <button class="btn btn-ghost btn-sm" id="jsonBtn">JSON</button>
+        <button class="btn btn-ghost btn-sm" id="curlBtn">cURL</button>
+        <button class="btn btn-ghost btn-sm" id="logBtn">Log</button>
+      </div>
+    </article>
+  </section>
+</main>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Riwayat">
+  <div class="drawer-h">
+    <h2>Riwayat</h2>
+    <span class="grow"></span>
+    <button class="icon-btn" id="closeDrawer" aria-label="Tutup riwayat">✕</button>
+  </div>
+  <div class="drawer-body">
+    <div id="spark"></div>
+    <div id="histTable"></div>
+  </div>
+</aside>
+
+<dialog class="dlg" id="settings">
+  <div class="dlg-h"><h2>Pengaturan</h2><span class="grow"></span><button class="icon-btn" id="closeSettings" aria-label="Tutup">✕</button></div>
+  <div class="dlg-b">
+    <label for="provider">Route</label>
+    <select id="provider"></select>
+    <div id="urlRow" hidden>
+      <label for="url">Base URL</label>
+      <input id="url" class="mono" placeholder="https://api.typesafe.ai/v1/systemone" />
+    </div>
+    <div class="grid2">
+      <div>
+        <label for="model">Model</label>
+        <input id="model" class="mono" />
+      </div>
+      <div>
+        <label for="key">API key</label>
+        <input id="key" class="mono" type="password" placeholder="opsional" autocomplete="off" />
+      </div>
+    </div>
+    <label for="threshold">Ambang YA untuk <span class="mono">noul</span></label>
+    <input id="threshold" class="mono" type="number" min="0" max="1" step="0.05" value="0.5" />
+    <div class="note" id="keyNote">Key per route. Untuk Laya self-host, key diisi otomatis oleh server.</div>
+  </div>
+  <div class="dlg-f"><button class="btn btn-primary" id="doneSettings">Selesai</button></div>
+</dialog>
+
+<dialog class="dlg" id="output">
+  <div class="dlg-h"><h2 id="outputTitle">JSON</h2><span class="grow"></span><button class="icon-btn" id="closeOutput" aria-label="Tutup">✕</button></div>
+  <div class="dlg-b"><pre id="outputPre"></pre></div>
+</dialog>
+
+<div id="mbar">
+  <button class="btn btn-primary" id="mrun">Jalankan</button>
+  <span id="mstat">siap</span>
+</div>
+
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+const LS = { settings: "jev.settings.v3", history: "jev.history.v3" };
+
+const PROVIDERS = {
+  laya_local:{ name: "Laya · self-host",                url: "http://127.0.0.1:8000/v1/systemone",   model: "laya",          key: false },
+  zen_free:  { name: "Zen · jev-1.13-free",             url: "https://opencode.ai/zen/v1/systemone", model: "jev-1.13-free", key: false },
+  zen_paid:  { name: "Zen · jev-1.13 (key)",            url: "https://opencode.ai/zen/v1/systemone", model: "jev-1.13",      key: true  },
+  jevmodel:  { name: "jevmodel.org · jev-latest (key)", url: "https://jevmodel.org/v1/systemone",    model: "jev-latest",    key: true  },
+  typesafe:  { name: "TypeSafe · jev-latest (key)",     url: "https://api.typesafe.ai/v1/systemone", model: "jev-latest",    key: true  },
+  custom:    { name: "Custom…",                         url: "",                                     model: "jev-latest",    key: false },
+};
+
+const PRESETS = {
+  triage: { label: "Triage tiket", state: "The customer has been billed twice for the same order #4821 and wants a refund today. This is their third message about it.",
+    questions: [
+      { name: "route", type: "choice", instructions: "Which queue should own this ticket?", criteria: "billing: Payments, refunds, invoices\ntechnical: Product errors and usage problems\nsales: Pricing, upgrades, new business" },
+      { name: "escalate", type: "noul", instructions: "Does this need a human right now?", criteria: "" },
+      { name: "urgency", type: "score", instructions: "How urgent is this for the customer?", criteria: "routine\nsoon\nurgent\ncritical" } ] },
+  moderasi: { label: "Moderasi komentar", state: 'Komentar user: "Kamu bodoh banget, berhenti nulis."',
+    questions: [
+      { name: "kategori", type: "choice", instructions: "Komentar ini masuk kategori apa?", criteria: "bersih: sopan\nkasar: menghina\nspam: promosi" },
+      { name: "tindak", type: "noul", instructions: "Perlu ditindak?", criteria: '{"true": "menyerang orang", "false": "kritik biasa"}' },
+      { name: "toksisitas", type: "score", instructions: "Seberapa toksik?", criteria: "aman\nrendah\nsedang\ntinggi" } ] },
+  lead: { label: "Skoring lead", state: "Inbound lead: CTO fintech 200 karyawan, minta demo minggu ini, budget sudah disetujui.",
+    questions: [
+      { name: "prioritas", type: "score", instructions: "Seberapa panas lead ini?", criteria: "dingin\nhangat\npanas\nmendesak" },
+      { name: "segmen", type: "choice", instructions: "Segmen perusahaan?", criteria: "startup: <50\nsmb: 50–500\nenterprise: >500" },
+      { name: "followup", type: "noul", instructions: "Hubungi manusia dalam 24 jam?", criteria: "" } ] },
+  spam: { label: "SMS spam", state: 'SMS: "SELAMAT! Anda menang Rp10jt. Klik bit.ly/xyz klaim sekarang!!!"',
+    questions: [
+      { name: "spam", type: "noul", instructions: "Spam atau penipuan?", criteria: "" },
+      { name: "bahaya", type: "score", instructions: "Seberapa berbahaya?", criteria: "aman\nmencurigakan\nberbahaya" },
+      { name: "aksi", type: "choice", instructions: "Tindakan?", criteria: "biarkan: normal\nkarantina: review\nblokir: tolak" } ] },
+};
+
+const TYPE_LABEL = { choice: "choice", noul: "noul", score: "score" };
+const TYPE_HINT = { choice: "pilih satu opsi", noul: "peluang YA", score: "skor berjenjang" };
+const CRIT_LABEL = {
+  choice: "Opsi — satu per baris, nama: penjelasan",
+  score: "Level — satu per baris, rendah → tinggi",
+  noul: "Kriteria — opsional, JSON",
+};
+const CRIT_PH = {
+  choice: "billing: pembayaran\ntechnical: error",
+  score: "rendah\nsedang\ntinggi",
+  noul: '{"true": "kondisi YA", "false": "kondisi TIDAK"}',
+};
+
+let Q = [], lastResult = null, aborter = null, keys = {}, drawerOpen = false;
+let reqBody = null, respBody = null, logs = "";
+
+function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+const pct = (x) => (Number(x) * 100).toFixed(1) + "%";
+const fmtMs = (n) => (n >= 1000 ? (n / 1000).toFixed(2) + " s" : n + " ms");
+function setStat(t) { $("#runStat").textContent = t; $("#mstat").textContent = t; }
+function logLine(msg) { logs += `[${new Date().toLocaleTimeString("id-ID")}] ${msg}\n`; }
+
+/* ---------------- simpan / muat ---------------- */
+function save() {
+  try {
+    localStorage.setItem(LS.settings, JSON.stringify({
+      provider: $("#provider").value, url: $("#url").value, model: $("#model").value, keys,
+      threshold: $("#threshold").value, state: $("#state").value, preset: $("#preset").value,
+      questions: Q.length ? readQuestions() : Q, drawerOpen,
+    }));
+  } catch {}
+}
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(LS.settings));
+    if (!s) return false;
+    if (s.provider && PROVIDERS[s.provider]) $("#provider").value = s.provider;
+    if (s.url != null) $("#url").value = s.url;
+    if (s.model) $("#model").value = s.model;
+    keys = (s.keys && typeof s.keys === "object") ? { ...s.keys } : {};
+    if (s.threshold) $("#threshold").value = s.threshold;
+    if (s.state != null) $("#state").value = s.state;
+    if (s.preset && PRESETS[s.preset]) $("#preset").value = s.preset;
+    if (Array.isArray(s.questions) && s.questions.length) { Q = s.questions.map((q) => ({ ...q })); renderQuestions(); }
+    if (s.drawerOpen) toggleDrawer(true, { silent: true });
+    return true;
+  } catch { return false; }
+}
+
+/* ---------------- route ---------------- */
+function routeLabel() {
+  const p = PROVIDERS[$("#provider").value];
+  return `${p.name} · ${$("#model").value || "?"}`;
+}
+function applyProvider() {
+  const id = $("#provider").value, p = PROVIDERS[id];
+  $("#urlRow").hidden = !!p.url;
+  if (p.url) $("#url").value = p.url;
+  if ($("#model").dataset.touched !== "1") $("#model").value = p.model;
+  $("#key").value = keys[id] || "";
+  $("#routeLabel").textContent = routeLabel();
+  save();
+}
+$("#provider").addEventListener("change", () => { $("#model").dataset.touched = ""; applyProvider(); });
+["url", "threshold", "state"].forEach((id) => $("#" + id).addEventListener("input", save));
+$("#model").addEventListener("input", () => { $("#model").dataset.touched = "1"; applyProvider(); });
+$("#key").addEventListener("input", () => { keys[$("#provider").value] = $("#key").value; save(); });
+$("#routeBtn").addEventListener("click", () => openSettings());
+$("#settingsBtn").addEventListener("click", () => openSettings());
+$("#closeSettings").addEventListener("click", () => $("#settings").close());
+$("#doneSettings").addEventListener("click", () => { $("#settings").close(); $("#routeLabel").textContent = routeLabel(); if (lastResult) renderResult(lastResult); });
+$("#threshold").addEventListener("change", () => { save(); if (lastResult) renderResult(lastResult); });
+function openSettings() { if (!$("#settings").open) $("#settings").showModal(); }
+
+/* ---------------- pertanyaan ---------------- */
+function uniqueName(base) {
+  const taken = new Set(Q.map((q) => q.name));
+  if (!taken.has(base)) return base;
+  let i = 2; while (taken.has(base + i)) i++;
+  return base + i;
+}
+function renderQuestions() {
+  const box = $("#questions");
+  box.replaceChildren();
+  Q.forEach((q, i) => {
+    const wrap = el("div", "q");
+    const top = el("div", "q-top");
+    const name = document.createElement("input");
+    name.className = "qn"; name.value = q.name; name.placeholder = "nama";
+    name.setAttribute("aria-label", "Nama pertanyaan");
+    const type = document.createElement("select");
+    type.className = "qt"; type.setAttribute("aria-label", "Tipe");
+    for (const [v, lbl] of Object.entries(TYPE_LABEL)) {
+      const o = document.createElement("option"); o.value = v; o.textContent = `${lbl} — ${TYPE_HINT[v]}`;
+      if (q.type === v) o.selected = true; type.append(o);
+    }
+    const del = el("button", "btn btn-sm btn-danger", "Hapus");
+    del.addEventListener("click", () => { Q.splice(i, 1); renderQuestions(); });
+    top.append(name, type, del);
+    wrap.append(top);
+
+    const il = el("label", null, "Instruksi");
+    const inst = document.createElement("textarea");
+    inst.className = "qinst"; inst.rows = 2; inst.value = q.instructions; inst.placeholder = "Keputusan yang diminta…";
+    wrap.append(il, inst);
+
+    const cl = el("label", null, CRIT_LABEL[q.type] || "Kriteria");
+    const crit = document.createElement("textarea");
+    crit.className = "qcrit mono"; crit.rows = 3; crit.value = q.criteria || ""; crit.placeholder = CRIT_PH[q.type] || "";
+    wrap.append(cl, crit);
+
+    type.addEventListener("change", () => { Q[i].type = type.value; renderQuestions(); });
+    box.append(wrap);
+  });
+  $("#qCount").textContent = `${Q.length}/8`;
+  $("#addQ").disabled = Q.length >= 8;
+}
+function readQuestions() {
+  return [...document.querySelectorAll("#questions .q")].map((r) => ({
+    name: r.querySelector(".qn").value, type: r.querySelector(".qt").value,
+    instructions: r.querySelector(".qinst").value, criteria: r.querySelector(".qcrit").value,
+  }));
+}
+$("#addQ").addEventListener("click", () => {
+  if (Q.length >= 8) return;
+  Q = readQuestions();
+  Q.push({ name: uniqueName("q" + (Q.length + 1)), type: "choice", instructions: "", criteria: "" });
+  renderQuestions();
+});
+function loadPreset(key) {
+  const t = PRESETS[key]; if (!t) return;
+  $("#state").value = t.state; Q = t.questions.map((q) => ({ ...q }));
+  renderQuestions(); save();
+}
+$("#preset").addEventListener("change", (e) => loadPreset(e.target.value));
+
+/* ---------------- payload ---------------- */
+function parseLinesObj(text) {
+  const out = {};
+  for (const line of text.split("\n")) {
+    const t = line.trim(); if (!t) continue;
+    const i = t.indexOf(":");
+    if (i < 0) throw new Error(`Baris opsi harus "nama: penjelasan" → "${t}"`);
+    out[t.slice(0, i).trim()] = t.slice(i + 1).trim();
+  }
+  return out;
+}
+const parseLinesArr = (t) => t.split("\n").map((s) => s.trim()).filter(Boolean);
+function buildBody() {
+  const questions = {};
+  for (const q of readQuestions()) {
+    const name = q.name.trim();
+    if (!/^[A-Za-z0-9_]{1,64}$/.test(name)) throw new Error(`Nama tidak valid: "${name}"`);
+    const def = { type: q.type, instructions: q.instructions.trim() };
+    if (!def.instructions) throw new Error(`Instruksi "${name}" kosong`);
+    if (q.type === "choice") def.criteria = parseLinesObj(q.criteria);
+    else if (q.type === "score") def.criteria = parseLinesArr(q.criteria);
+    else if (q.type === "noul" && q.criteria.trim()) { try { def.criteria = JSON.parse(q.criteria); } catch { throw new Error(`Kriteria "${name}" bukan JSON`); } }
+    if (q.type === "choice" && Object.keys(def.criteria).length < 2) throw new Error(`"${name}": butuh ≥2 opsi`);
+    if (q.type === "score" && def.criteria.length < 2) throw new Error(`"${name}": butuh ≥2 level`);
+    if (questions[name]) throw new Error(`Nama ganda: "${name}"`);
+    questions[name] = def;
+  }
+  if (!Object.keys(questions).length) throw new Error("Belum ada pertanyaan.");
+  return { model: $("#model").value.trim(), state: $("#state").value, questions };
+}
+
+/* ---------------- run ---------------- */
+function busy(b) {
+  $("#run").disabled = b; $("#mrun").disabled = b; $("#cancel").hidden = !b;
+  if (b) setStat("menjalankan…");
+}
+function showError(title, detail, hint) {
+  const box = el("div", "errbox");
+  box.append(el("div", "et", title));
+  if (detail) box.append(el("div", "em", detail));
+  if (hint) box.append(el("div", "eh", hint));
+  $("#answers").replaceChildren(box);
+  $("#summary").replaceChildren(); $("#tiles").replaceChildren();
+  $("#resultBadge").hidden = false; $("#resultBadge").textContent = "gagal";
+  $("#resultTools").hidden = false;
+  setStat("gagal");
+}
+async function run() {
+  if (aborter) return;
+  Q = readQuestions();
+  let body;
+  try { body = buildBody(); } catch (e) { return showError("Periksa pertanyaan", e.message); }
+  const p = PROVIDERS[$("#provider").value];
+  const url = p.url || $("#url").value.trim();
+  if (!url) return showError("URL kosong", "Isi Custom endpoint di Pengaturan.", "");
+  const key = $("#key").value.trim();
+  reqBody = { url, model: body.model, body, key: key || null };
+
+  aborter = new AbortController(); busy(true);
+  logLine(`POST ${url} · model=${body.model} · ${Object.keys(body.questions).length} pertanyaan`);
+  const t0 = performance.now();
+  try {
+    const r = await fetch("/api/decide", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(reqBody), signal: aborter.signal,
+    });
+    const ms = Math.round(performance.now() - t0);
+    const data = await r.json();
+    respBody = data;
+    lastResult = { body, resp: data, ms, status: r.status, tokensRemaining: r.headers.get("x-tokens-remaining"), upstreamMs: r.headers.get("x-jev-upstream-ms") };
+    renderResult(lastResult); pushHistory(lastResult);
+  } catch (e) {
+    if (e.name === "AbortError") showError("Dibatalkan", "Request dihentikan.", "");
+    else showError("Proxy lokal tidak terjangkau", e.message, "Pastikan server.py berjalan.");
+  } finally { aborter = null; busy(false); }
+}
+$("#run").addEventListener("click", run);
+$("#mrun").addEventListener("click", run);
+$("#cancel").addEventListener("click", () => aborter && aborter.abort());
+
+/* ---------------- render ---------------- */
+const ansType = (a) => (a.choice !== undefined ? "choice" : a.score !== undefined ? "score" : "noul");
+function nearest(a) {
+  if (!a.legend || !a.probabilities) return "";
+  const best = Object.entries(a.probabilities).sort((x, y) => y[1] - x[1])[0];
+  return best ? (a.legend[best[0]] || best[0]) : "";
+}
+function probRow(label, value, selected) {
+  const row = el("div", "prob" + (selected ? " sel" : ""));
+  row.append(el("div", "lbl", label));
+  const bar = el("div", "bar"); const i = el("i"); i.style.width = Math.max(1, Number(value) * 100).toFixed(1) + "%";
+  bar.append(i); row.append(bar);
+  row.append(el("div", "pct" + (selected ? " strong" : ""), pct(value)));
+  return row;
+}
+function noulView(value, th) {
+  const yes = value >= th;
+  const wrap = el("div", "chart");
+  const verdict = el("div", "verdict");
+  verdict.append(el("span", "vdot" + (yes ? "" : " off")));
+  verdict.append(el("span", "vtext", yes ? "YA" : "TIDAK"));
+  verdict.append(el("span", "vsub", `ambang ${th}`));
+  wrap.append(verdict);
+  const hbar = el("div", "hbar");
+  const fill = el("i"); if (!yes) fill.className = "off";
+  fill.style.width = Math.min(100, Math.max(1.5, value * 100)).toFixed(1) + "%";
+  const tick = el("span", "tick"); tick.style.left = `${(th * 100).toFixed(1)}%`; tick.title = `ambang ${th}`;
+  hbar.append(fill, tick);
+  wrap.append(hbar);
+  return wrap;
+}
+function scoreCells(a) {
+  const wrap = el("div", "chart");
+  if (!a.probabilities) return wrap;
+  const entries = Object.entries(a.probabilities).sort((x, y) => Number(x[0]) - Number(y[0]));
+  let top = 0;
+  entries.forEach(([, v], i) => { if (v > entries[top][1]) top = i; });
+  const cells = el("div", "cells");
+  entries.forEach(([k, v], i) => {
+    const cell = el("div", "cell" + (i === top ? " active" : ""));
+    const fill = el("i", "cfill");
+    fill.style.width = Math.min(100, Math.max(3, Number(v) * 100)).toFixed(0) + "%";
+    cell.append(fill);
+    cell.append(el("span", "clbl", a.legend ? (a.legend[k] ?? k) : k));
+    cell.append(el("span", "cpct", pct(v)));
+    cells.append(cell);
+  });
+  wrap.append(cells);
+  return wrap;
+}
+function renderAnswer(name, a, th) {
+  const type = ansType(a);
+  const card = el("div", "ans");
+  const head = el("div", "ans-h");
+  head.append(el("span", "nm", name), el("span", "ty", type));
+  card.append(head);
+
+  if (type === "choice") {
+    const big = el("div", "headline", a.choice || "—");
+    if (a.confidence != null) big.append(el("small", null, `yakin ${pct(a.confidence)}`));
+    card.append(big);
+    for (const [k, v] of Object.entries(a.probabilities || {}).sort((x, y) => y[1] - x[1])) card.append(probRow(k, v, k === a.choice));
+  } else if (type === "noul") {
+    const big = el("div", "headline", pct(a.noul));
+    big.append(el("small", null, "peluang YA"));
+    card.append(big, noulView(a.noul, th));
+  } else {
+    const big = el("div", "headline", String(a.score));
+    if (a.legend && nearest(a)) big.append(el("small", null, `≈ ${nearest(a)}`));
+    if (a.confidence != null) big.append(el("small", null, `· keyakinan ${pct(a.confidence)}`));
+    card.append(big, scoreCells(a));
+  }
+  return card;
+}
+function tile(k, v, bad) { const t = el("div", "tile" + (bad ? " bad" : "")); t.append(el("div", "k", k), el("div", "v", v)); return t; }
+function renderResult({ resp, ms, status, tokensRemaining, upstreamMs }) {
+  const ok = status >= 200 && status < 300 && !(resp && resp.error && !resp.answers);
+  const th = Number($("#threshold").value) || 0.5;
+  $("#resultBadge").hidden = false; $("#resultBadge").textContent = `HTTP ${status}`;
+
+  const tiles = $("#tiles"); tiles.replaceChildren();
+  tiles.append(tile("Status", `HTTP ${status}`, !ok));
+  tiles.append(tile("Latensi", fmtMs(ms) + (upstreamMs ? ` · ${fmtMs(upstreamMs)} up` : "")));
+  tiles.append(tile("Model", (resp && resp.model) || "—"));
+  tiles.append(tile("Token masuk", resp && resp.usage ? String(resp.usage.input_tokens ?? "—") : "—"));
+  if (tokensRemaining) tiles.append(tile("Sisa token", tokensRemaining));
+
+  const sum = $("#summary"), out = $("#answers");
+  sum.replaceChildren(); out.replaceChildren();
+  if (!ok) {
+    const e = (resp && (resp.error || resp)) || {};
+    const detail = e.message || e.detail || JSON.stringify(resp);
+    let hint = "";
+    if (status === 401) hint = PROVIDERS[$("#provider").value].name.startsWith("Laya")
+      ? "Key Laya dibaca server dari ~/.laya_key." : "Isi API key di Pengaturan.";
+    showError(`HTTP ${status} · ${e.type || "error"}`, detail, hint);
+    setStat(`HTTP ${status}`);
+    return;
+  }
+  const answers = Object.entries(resp.answers || {});
+  const box = el("div", "summary");
+  box.append(el("div", "t", "Ringkasan"));
+  const ul = el("ul");
+  for (const [name, a] of answers) {
+    const t = ansType(a);
+    const li = el("li");
+    li.append(el("span", "nm", name + " "));
+    li.append(document.createTextNode(t === "choice" ? `→ ${a.choice}` :
+      t === "noul" ? `→ ${a.noul >= th ? "YA" : "TIDAK"} ${pct(a.noul)}` :
+      `→ ${a.score}${a.legend ? " ≈ " + nearest(a) : ""}`));
+    ul.append(li);
+  }
+  box.append(ul); sum.append(box);
+  for (const [name, a] of answers) out.append(renderAnswer(name, a, th));
+  $("#resultTools").hidden = false;
+  setStat(`HTTP ${status} · ${fmtMs(ms)}`);
+}
+
+/* ---------------- riwayat ---------------- */
+const getHistory = () => { try { return JSON.parse(localStorage.getItem(LS.history)) || []; } catch { return []; } };
+function pushHistory(entry) {
+  const h = getHistory();
+  h.unshift({
+    ts: Date.now(), status: entry.status, ms: entry.ms, model: entry.body.model,
+    state: entry.body.state.slice(0, 300), body: { ...entry.body, state: entry.body.state.slice(0, 5000) },
+    resp: entry.resp, tokensRemaining: entry.tokensRemaining ?? null, upstreamMs: entry.upstreamMs ?? null,
+  });
+  try { localStorage.setItem(LS.history, JSON.stringify(h.slice(0, 20))); } catch {}
+  renderHistory();
+}
+function sparkline(runs) {
+  const box = $("#spark"); box.replaceChildren();
+  if (runs.length < 2) return;
+  const w = Math.max(200, box.clientWidth || 320), h = 56, pad = 6;
+  const max = Math.max(...runs.map((r) => r.ms)) || 1;
+  const step = (w - pad * 2) / (runs.length - 1);
+  const pts = runs.map((r, i) => [pad + i * step, h - pad - (r.ms / max) * (h - pad * 2)]);
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("width", String(w)); svg.setAttribute("height", String(h)); svg.style.display = "block";
+  const poly = pts.map((p) => p.join(",")).join(" ");
+  const dots = runs.map((r, i) => `<circle cx="${pts[i][0]}" cy="${pts[i][1]}" r="3" fill="${r.status >= 200 && r.status < 300 ? "var(--chart-2)" : "var(--destructive)"}"/>`).join("");
+  svg.innerHTML = `<polyline points="${poly}" fill="none" stroke="var(--border)" stroke-width="2"/>${dots}
+    <text x="${pad}" y="${h - 1}" font-family="var(--font-mono)" font-size="9" fill="var(--muted-foreground)">${fmtMs(max)} maks</text>`;
+  const title = el("div", null, "Latensi run terakhir");
+  title.style.cssText = "font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px";
+  box.append(title, svg);
+}
+function renderHistory() {
+  const runs = getHistory();
+  sparkline(runs);
+  const box = $("#histTable"); box.replaceChildren();
+  if (!runs.length) { box.append(el("div", "empty", "Belum ada riwayat.")); return; }
+  const table = el("table");
+  const thead = el("thead"); const hr = el("tr");
+  for (const h of ["Waktu", "Model", "HTTP", "Latensi"]) hr.append(el("th", null, h));
+  thead.append(hr);
+  const tbody = el("tbody");
+  for (const r of runs) {
+    const tr = el("tr");
+    tr.append(el("td", null, new Date(r.ts).toLocaleTimeString("id-ID")));
+    tr.append(el("td", null, r.model));
+    tr.append(el("td", "st " + (r.status >= 200 && r.status < 300 ? "ok" : "bad"), String(r.status)));
+    tr.append(el("td", "st", fmtMs(r.ms)));
+    tr.title = r.state;
+    tr.addEventListener("click", () => {
+      $("#state").value = r.body.state; $("#model").value = r.body.model;
+      Q = Object.entries(r.body.questions).map(([name, def]) => ({
+        name, type: def.type, instructions: def.instructions || "",
+        criteria: def.type === "choice" ? Object.entries(def.criteria || {}).map(([k, v]) => `${k}: ${v}`).join("\n")
+          : def.type === "score" ? (def.criteria || []).join("\n")
+          : typeof def.criteria === "object" ? JSON.stringify(def.criteria, null, 2) : (def.criteria || ""),
+      }));
+      renderQuestions(); save();
+      lastResult = { body: r.body, resp: r.resp, ms: r.ms, status: r.status, tokensRemaining: r.tokensRemaining, upstreamMs: r.upstreamMs };
+      renderResult(lastResult);
+      toggleDrawer(false);
+    });
+    tbody.append(tr);
+  }
+  table.append(thead, tbody); box.append(table);
+}
+
+/* ---------------- drawer ---------------- */
+function toggleDrawer(open, { silent = false } = {}) {
+  drawerOpen = open;
+  const d = $("#drawer"), sc = $("#scrim");
+  d.classList.toggle("open", open); d.setAttribute("aria-hidden", String(!open));
+  $("#historyBtn").setAttribute("aria-expanded", String(open));
+  sc.hidden = !open;
+  requestAnimationFrame(() => sc.classList.toggle("on", open));
+  if (open) renderHistory();
+  if (!silent) save();
+}
+$("#historyBtn").addEventListener("click", () => toggleDrawer(!drawerOpen));
+$("#closeDrawer").addEventListener("click", () => toggleDrawer(false));
+$("#scrim").addEventListener("click", () => toggleDrawer(false));
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && drawerOpen) toggleDrawer(false); });
+
+/* ---------------- keluaran mentah ---------------- */
+function openOutput(title, text) {
+  $("#outputTitle").textContent = title;
+  $("#outputPre").textContent = text || "(kosong)";
+  $("#output").showModal();
+}
+$("#jsonBtn").addEventListener("click", () => openOutput("JSON", JSON.stringify({ request: reqBody, response: respBody }, null, 2)));
+$("#logBtn").addEventListener("click", () => openOutput("Log", logs.trim() || "(kosong)"));
+$("#curlBtn").addEventListener("click", async () => {
+  if (!reqBody) return;
+  const p = PROVIDERS[$("#provider").value];
+  const cmd = `curl -sS -X POST ${reqBody.url} -H 'Content-Type: application/json'` +
+    ((p.key || $("#key").value.trim()) ? ` -H "Authorization: Bearer $JEV_KEY"` : "") +
+    ` -d '${JSON.stringify(reqBody.body)}'`;
+  openOutput("cURL", cmd);
+  try { await navigator.clipboard.writeText(cmd); } catch {}
+});
+$("#closeOutput").addEventListener("click", () => $("#output").close());
+
+/* ---------------- init ---------------- */
+for (const [k, p] of Object.entries(PROVIDERS)) $("#provider").append(new Option(p.name, k));
+for (const [k, t] of Object.entries(PRESETS)) $("#preset").append(new Option(t.label, k));
+
+const restored = load();
+if (!PROVIDERS[$("#provider").value]) $("#provider").value = "laya_local";
+if (!PRESETS[$("#preset").value]) $("#preset").value = "triage";
+if (!Q.length) {
+  const t = PRESETS[$("#preset").value];
+  if (!restored && t) $("#state").value = t.state;
+  if (t) { Q = t.questions.map((q) => ({ ...q })); renderQuestions(); }
+}
+applyProvider(); save(); renderHistory();
+
+(async () => {
+  const dot = $("#proxyDot");
+  try {
+    const j = await (await fetch("/api/health")).json();
+    dot.title = "proxy ok" + (j.key_from_env ? " · JEV_KEY aktif" : "") + (j.laya_key_file ? " · key Laya otomatis" : "");
+    dot.classList.remove("bad");
+  } catch { dot.classList.add("bad"); dot.title = "proxy tidak aktif"; }
+})();
+</script>
+</body>
+</html>

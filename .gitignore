@@ -1,0 +1,7 @@
+# lokal / rahasia
+server.log
+*.log
+__pycache__/
+.restart-flag
+.laya_key
+*.img
